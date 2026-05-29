@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>โมเดลราคาประเมินที่ดินรายจังหวัด · ประเทศไทย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chonburi&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+ --bg:#0b1016;--panel:#141d28;--panel2:#1a2533;--panelhi:#1f2c3c;--line:#283745;--line2:#324456;
+ --ink:#eaf1f6;--ink-dim:#9fb2bf;--ink-faint:#697d8c;
+ --gold:#e6b54a;--cyan:#5fb6c4;--violet:#a585e8;--green:#6fcf97;--rose:#e88a8a;
+ --c-neg:#3a5772;--c0:#5a8294;--c1:#cdb85a;--c2:#e3982f;--c3:#dd6a26;--c4:#c33c24;--c5:#7d1f1f;
+ --p0:#2f6050;--p1:#3f8460;--p2:#9eb343;--p3:#dcab37;--p4:#e07d2b;--p5:#c64624;--p6:#841d1d;
+ --radius:14px;
+ --mono:'IBM Plex Mono','SF Mono',ui-monospace,monospace;
+ --thai:'IBM Plex Sans Thai','Sarabun',system-ui,sans-serif;
+ --disp:'Chonburi','IBM Plex Sans Thai',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+ background:
+  radial-gradient(1100px 560px at 84% -8%, #1c2f44 0%, transparent 58%),
+  radial-gradient(820px 460px at -5% 105%, #122430 0%, transparent 55%),
+  radial-gradient(600px 600px at 50% 50%, #0e151d 0%, transparent 70%),
+  var(--bg);
+ color:var(--ink);font-family:var(--thai);line-height:1.55;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1340px;margin:0 auto;padding:30px 20px 70px;}
+/* header */
+header{position:relative;border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:24px;}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:11px;display:flex;align-items:center;gap:10px;}
+.kicker::before{content:"";width:26px;height:1px;background:var(--gold);display:inline-block;}
+h1{font-family:var(--disp);font-weight:400;font-size:clamp(28px,4.6vw,50px);line-height:1.06;letter-spacing:.01em;}
+h1 .em{color:var(--gold);position:relative;}
+.sub{color:var(--ink-dim);max-width:820px;margin-top:13px;font-size:15px;}
+.src-tag{display:inline-flex;gap:8px;align-items:center;margin-top:15px;font-size:12.5px;color:var(--ink-faint);border:1px solid var(--line);border-radius:30px;padding:6px 14px;background:var(--panel);}
+.src-tag b{color:var(--cyan);font-weight:600;}
+.notice{margin-top:16px;background:linear-gradient(180deg,#1b2531,#151d27);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 17px;font-size:13.3px;color:var(--ink-dim);}
+.notice b{color:var(--ink);}
+/* hero KPI strip */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0 6px;}
+@media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr);}}
+.kpi{position:relative;background:linear-gradient(160deg,var(--panelhi),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:16px 17px;overflow:hidden;}
+.kpi::after{content:"";position:absolute;inset:0;background:radial-gradient(120px 80px at 90% 0%,var(--glow,#e6b54a22),transparent 70%);}
+.kpi .kl{font-size:12px;color:var(--ink-faint);margin-bottom:6px;position:relative;}
+.kpi .kv{font-family:var(--mono);font-weight:600;font-size:26px;line-height:1;position:relative;}
+.kpi .kv small{font-size:13px;color:var(--ink-dim);font-weight:400;}
+.kpi .kd{font-size:11.5px;color:var(--ink-faint);margin-top:7px;position:relative;}
+.kpi.g{--glow:#e6b54a26}.kpi.c{--glow:#5fb6c426}.kpi.v{--glow:#a585e826}.kpi.r{--glow:#e88a8a22}
+/* tabs */
+.tabs{display:flex;gap:6px;margin:26px 0 18px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:0;}
+.tab{font-family:var(--thai);font-size:14.5px;font-weight:600;color:var(--ink-dim);background:none;border:none;padding:11px 18px;cursor:pointer;position:relative;transition:.15s;border-radius:10px 10px 0 0;}
+.tab:hover{color:var(--ink);background:#ffffff06;}
+.tab.on{color:var(--ink);}
+.tab.on::after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:2.5px;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--cyan));}
+.view{display:none;animation:fade .35s ease;}
+.view.on{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* card */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
+.card h2{font-weight:700;font-size:16.5px;margin-bottom:4px;display:flex;align-items:center;gap:9px;}
+.card .h-sub{font-size:12.5px;color:var(--ink-faint);margin-bottom:16px;}
+.grid-main{display:grid;grid-template-columns:1.4fr 1fr;gap:22px;align-items:start;}
+@media(max-width:920px){.grid-main{grid-template-columns:1fr;}}
+.stack{display:flex;flex-direction:column;gap:22px;}
+/* map sub-controls */
+.seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:30px;padding:4px;gap:2px;flex-wrap:wrap;margin-bottom:16px;}
+.seg button{font-family:var(--thai);font-size:13px;font-weight:600;color:var(--ink-dim);background:none;border:none;padding:7px 14px;border-radius:30px;cursor:pointer;transition:.18s;white-space:nowrap;}
+.seg button:hover{color:var(--ink);}
+.seg button.on{background:var(--gold);color:#1a1205;}
+.seg button.on[data-m="price"]{background:var(--violet);color:#1a0d33;}
+.seg button.on[data-m="diff"]{background:var(--cyan);color:#06222a;}
+#mapwrap{position:relative;overflow:auto;border-radius:10px;}
+#map{display:grid;grid-template-columns:repeat(13,1fr);gap:4px;min-width:560px;}
+.tile{position:relative;aspect-ratio:1/1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9.5px;font-weight:600;color:#0a0e13d0;cursor:pointer;transition:transform .13s,box-shadow .13s,outline .13s;outline:1px solid #ffffff14;}
+.tile:hover{transform:translateY(-3px) scale(1.09);z-index:6;box-shadow:0 8px 22px -4px #000c;outline:1.5px solid #fff;}
+.tile.real::after{content:"";position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:#0a0e13;box-shadow:0 0 0 1.6px #ffffffd0;}
+.tile.dim{opacity:.2;}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:18px;align-items:center;}
+.legend .lg{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-dim);font-family:var(--mono);}
+.sw{width:16px;height:16px;border-radius:4px;outline:1px solid #ffffff15;}
+.legend-note{font-size:11.5px;color:var(--ink-faint);margin-top:9px;display:flex;gap:6px;align-items:center;}
+.legend-note .dot{width:6px;height:6px;border-radius:50%;background:#0a0e13;box-shadow:0 0 0 1.6px var(--ink-dim);}
+.toggle-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:15px;font-size:13px;color:var(--ink-dim);}
+.chk{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none;}
+.chk input{accent-color:var(--gold);width:15px;height:15px;}
+/* tooltip */
+#tip{position:fixed;pointer-events:none;z-index:60;background:#0a0f15f5;border:1px solid var(--line2);border-radius:11px;padding:12px 14px;min-width:212px;opacity:0;transform:translateY(4px);transition:opacity .12s;box-shadow:0 16px 44px -8px #000d;backdrop-filter:blur(5px);}
+#tip.show{opacity:1;transform:none;}
+#tip .tn{font-weight:700;font-size:15.5px;margin-bottom:2px;}
+#tip .tr{font-size:11px;color:var(--ink-faint);font-family:var(--mono);letter-spacing:.05em;margin-bottom:9px;}
+#tip .sec{font-size:9.5px;color:var(--ink-faint);letter-spacing:.08em;text-transform:uppercase;margin:9px 0 4px;border-top:1px solid var(--line);padding-top:7px;}
+#tip .sec:first-of-type{border-top:none;padding-top:0;}
+#tip .row{display:flex;justify-content:space-between;gap:18px;font-size:12.5px;margin:3px 0;}
+#tip .row span{color:var(--ink-dim);}
+#tip .row b{font-family:var(--mono);font-weight:600;}
+#tip .tag{margin-top:10px;font-size:10.5px;font-family:var(--mono);padding:2px 8px;border-radius:20px;display:inline-block;}
+#tip .tag.real{background:#1c3b2a;color:#7fdca0;}
+#tip .tag.est{background:#3a2f1a;color:#e6b54a;}
+/* stats + ranking */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;}
+.stat{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 14px;}
+.stat .lab{font-size:11.5px;color:var(--ink-faint);margin-bottom:4px;}
+.stat .val{font-family:var(--mono);font-weight:600;font-size:21px;line-height:1.1;}
+.stat .val small{font-size:12px;color:var(--ink-dim);font-weight:400;}
+.bench{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--ink-dim);margin-top:15px;border-top:1px solid var(--line);padding-top:13px;}
+.bench b{font-family:var(--mono);color:var(--cyan);}
+.rk .rrow{display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid #ffffff08;font-size:13px;}
+.rk .rrow:last-child{border-bottom:none;}
+.rk .ri{font-family:var(--mono);font-size:11px;color:var(--ink-faint);text-align:right;}
+.rk .rn{display:flex;align-items:center;gap:7px;overflow:hidden;}
+.rk .rn .bar{height:9px;border-radius:5px;flex:0 0 auto;transition:width .5s cubic-bezier(.2,.8,.2,1);}
+.rk .rn .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rk .rv{font-family:var(--mono);font-weight:600;font-size:13px;}
+.mini-seg{display:inline-flex;gap:2px;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px;margin-left:auto;}
+.mini-seg button{font-size:11.5px;font-family:var(--thai);color:var(--ink-dim);background:none;border:none;padding:4px 11px;border-radius:16px;cursor:pointer;}
+.mini-seg button.on{background:var(--line2);color:var(--ink);}
+/* region paired bars */
+.regp .rg{margin:11px 0;}
+.regp .rgh{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;}
+.regp .rgh b{font-family:var(--mono);}
+.regp .twin{display:flex;flex-direction:column;gap:4px;}
+.regp .trk{height:11px;background:#ffffff09;border-radius:6px;overflow:hidden;position:relative;}
+.regp .fl{height:100%;border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1);}
+.regp .lab{font-size:10.5px;color:var(--ink-faint);font-family:var(--mono);display:flex;justify-content:space-between;}
+/* price table */
+.ptab{width:100%;border-collapse:collapse;font-size:12.5px;}
+.ptab th{text-align:right;font-weight:600;color:var(--ink-faint);font-size:11px;padding:7px 8px;border-bottom:1px solid var(--line);}
+.ptab th:first-child{text-align:left;}
+.ptab td{padding:8px;border-bottom:1px solid #ffffff08;font-family:var(--mono);text-align:right;}
+.ptab td:first-child{text-align:left;font-family:var(--thai);font-weight:500;}
+.ptab tr:last-child td{border-bottom:none;}
+.ptab .gap{color:var(--gold);font-weight:600;}.ptab .pm{color:var(--violet);}.ptab .pn{color:var(--green);}
+/* svg charts */
+.chartcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
+svg{display:block;width:100%;height:auto;overflow:visible;}
+.axis{stroke:var(--line2);stroke-width:1;}
+.gridln{stroke:#ffffff0a;stroke-width:1;}
+.axlab{fill:var(--ink-faint);font-family:var(--mono);font-size:10px;}
+.axtitle{fill:var(--ink-dim);font-family:var(--thai);font-size:12px;font-weight:600;}
+.dot{cursor:pointer;transition:r .15s;}
+.dot:hover{r:9;}
+.dlabel{fill:var(--ink-dim);font-family:var(--thai);font-size:10px;pointer-events:none;}
+.dumb-line{stroke:var(--line2);stroke-width:2;}
+.dumb-name{fill:var(--ink);font-family:var(--thai);font-size:12px;}
+.dumb-val{fill:var(--ink-faint);font-family:var(--mono);font-size:10px;}
+.legpill{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);margin-right:16px;}
+.legpill i{width:11px;height:11px;border-radius:50%;display:inline-block;}
+.chart-leg{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center;}
+/* editor */
+details.editor{margin-top:24px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);}
+details.editor summary{cursor:pointer;padding:16px 19px;font-weight:700;font-size:15px;list-style:none;display:flex;align-items:center;gap:9px;}
+details.editor summary::-webkit-details-marker{display:none}
+details.editor summary .chev{margin-left:auto;color:var(--ink-faint);transition:.2s;font-family:var(--mono);}
+details.editor[open] summary .chev{transform:rotate(90deg);}
+.ed-body{padding:0 19px 19px;}
+.ed-body p{font-size:13px;color:var(--ink-dim);margin-bottom:10px;}
+.ed-body code{font-family:var(--mono);background:var(--panel2);padding:2px 6px;border-radius:5px;font-size:12px;color:var(--gold);}
+textarea{width:100%;min-height:150px;background:#0a0f15;border:1px solid var(--line);border-radius:9px;color:var(--ink);font-family:var(--mono);font-size:12.5px;padding:12px;resize:vertical;}
+.btnrow{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px;}
+.btn{font-family:var(--thai);font-size:13.5px;font-weight:600;border-radius:9px;padding:9px 16px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--ink);transition:.15s;}
+.btn:hover{border-color:var(--gold);}
+.btn.pri{background:var(--gold);color:#1a1205;border-color:var(--gold);}
+.ed-msg{font-size:12.5px;font-family:var(--mono);margin-top:9px;min-height:16px;}
+footer{margin-top:36px;padding-top:19px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-faint);line-height:1.7;}
+footer a{color:var(--cyan);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Land Appraisal Atlas · กรมธนารักษ์ · รอบบัญชี 2559–62 → 2566–69</div>
+    <h1>ราคาประเมิน<span class="em">ที่ดิน</span> รายจังหวัด<br>ทั่วประเทศไทย</h1>
+    <p class="sub">เปรียบเทียบ <b style="color:var(--ink)">ราคาประเมินล่าสุด (จำนวนเงิน)</b> และ <b style="color:var(--ink)">สัดส่วนการเปลี่ยนแปลง (%)</b> ระหว่าง <b style="color:var(--violet)">ราคาสูงสุด</b> กับ <b style="color:var(--green)">ราคาต่ำสุด</b> รายจังหวัด — ผ่านแผนที่ กราฟกระจาย และกราฟเปรียบเทียบ</p>
+    <span class="src-tag">● อัปเดตข้อมูล: <b>กรมธนารักษ์ / DDproperty / TNN Online</b></span>
+    <div class="notice">
+      <b>โปรดอ่าน:</b> ราคาประเมินปรับเป็น “รอบบัญชี” ทุก ~4 ปี — ราคาคือ <b>ช่วงราคาประเมินต่ำสุด–สูงสุดของแต่ละจังหวัด รอบ 2566–69</b>.
+      <b style="color:var(--cyan)">จุด ● </b>= มีราคาต่ำสุด–สูงสุดครบ 77 จังหวัดจากตารางอ้างอิงล่าสุด (กทม. 1,300–1,000,000 · สงขลา 200–400,000 · เชียงใหม่ 100–250,000 · ชลบุรี 400–220,000 ฿/ตร.ว.).
+      ข้อมูล % การเปลี่ยนแปลงมีเฉพาะจังหวัดที่สื่อรายงานไว้โดยตรง; จังหวัดที่เหลือยังเป็น <b style="color:var(--gold)">ค่าประมาณเพื่อแสดงภาพรวม</b>.
+    </div>
+  </header>
+
+  <!-- KPI strip -->
+  <div class="kpis" id="kpis"></div>
+
+  <!-- TABS -->
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-v="map">🗺️ แผนที่</button>
+    <button class="tab" data-v="scatter">⦿ ราคา × %เปลี่ยน</button>
+    <button class="tab" data-v="dumbbell">💰 สูงสุด ↔ ต่ำสุด</button>
+    <button class="tab" data-v="region">📊 รายภาค</button>
+  </div>
+
+  <!-- VIEW: MAP -->
+  <div class="view on" data-view="map">
+    <div class="grid-main">
+      <section class="card">
+        <h2 id="mapTitle">แผนที่ราคาประเมินล่าสุด — ราคาสูงสุดรายจังหวัด</h2>
+        <div class="h-sub" id="mapSub">ไล่สีตามราคา บาท/ตร.ว.</div>
+        <div class="seg" id="modelSeg">
+          <button data-m="price" class="on">💰 ราคาล่าสุด</button>
+          <button data-m="mueang">🏙️ %เมือง</button>
+          <button data-m="nok">🌾 %นอกเมือง</button>
+          <button data-m="diff">⇄ ส่วนต่าง%</button>
+        </div>
+        <div id="mapwrap"><div id="map"></div></div>
+        <div class="legend" id="legend"></div>
+        <div class="legend-note"><span class="dot"></span> = มีราคาต่ำสุด–สูงสุดจากตารางอ้างอิง · % บางจังหวัดเป็นค่าประมาณ</div>
+        <div class="toggle-row"><label class="chk"><input type="checkbox" id="onlyReal"> เน้นจังหวัดที่มีราคาจากตารางอ้างอิง</label></div>
+      </section>
+      <div class="stack">
+        <section class="card">
+          <h2>ภาพรวมทั้งประเทศ</h2>
+          <div class="h-sub" id="ovSub">สรุปสถิติของมุมมองที่เลือก (77 จังหวัด)</div>
+          <div class="stats" id="stats"></div>
+          <div class="bench"><span id="benchLab"></span><b id="benchVal"></b></div>
+        </section>
+        <section class="card">
+          <h2 style="justify-content:space-between;">อันดับจังหวัด
+            <span class="mini-seg" id="rankSeg"><button data-r="top" class="on">สูงสุด</button><button data-r="bottom">ต่ำสุด</button></span>
+          </h2>
+          <div class="h-sub" id="rkSub"></div>
+          <div class="rk" id="rank"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW: SCATTER -->
+  <div class="view" data-view="scatter">
+    <section class="chartcard">
+      <h2>⦿ ราคาประเมิน × สัดส่วนการเปลี่ยนแปลง</h2>
+      <div class="h-sub">แกนนอน = ราคาสูงสุด (฿/ตร.ว., สเกล log) · แกนตั้ง = %เปลี่ยนแปลงเขตเมือง · ขนาดวง = ราคาต่ำสุด · ชี้เพื่อดูชื่อ</div>
+      <div id="scatter"></div>
+      <div class="chart-leg">
+        <span class="legpill"><i style="background:var(--cyan)"></i> ราคาต่ำสุด–สูงสุดจากตารางอ้างอิง (●)</span>
+        <span class="legpill"><i style="background:var(--gold)"></i> % เปลี่ยนแปลงที่ยังเป็นค่าประมาณ</span>
+        <span class="legpill" style="color:var(--ink-faint)">เส้นประ = ค่าเฉลี่ยประเทศ +8.93%</span>
+      </div>
+    </section>
+  </div>
+
+  <!-- VIEW: DUMBBELL -->
+  <div class="view" data-view="dumbbell">
+    <section class="chartcard">
+      <h2>💰 ราคาประเมินเป็นจำนวนเงิน — สูงสุด ↔ ต่ำสุด</h2>
+      <div class="h-sub">15 จังหวัดราคาสูงสุด · ระยะห่างของจุด = ช่วงราคาต่ำสุด–สูงสุดในจังหวัด (สเกล log)</div>
+      <div class="chart-leg" style="margin:0 0 6px;">
+        <span class="legpill"><i style="background:var(--violet)"></i> ราคาสูงสุด</span>
+        <span class="legpill"><i style="background:var(--green)"></i> ราคาต่ำสุด</span>
+      </div>
+      <div id="dumbbell"></div>
+    </section>
+  </div>
+
+  <!-- VIEW: REGION -->
+  <div class="view" data-view="region">
+    <div class="grid-main">
+      <section class="chartcard">
+        <h2>📊 %เปลี่ยนแปลง รายภาค — เมือง vs นอกเมือง</h2>
+        <div class="h-sub">เทียบสัดส่วนการเปลี่ยนแปลงเป็น % ของแต่ละภูมิภาค</div>
+        <div class="regp" id="regpct"></div>
+      </section>
+      <section class="chartcard">
+        <h2>💰 ราคาเฉลี่ยรายภาค (จำนวนเงิน)</h2>
+        <div class="h-sub">ค่าเฉลี่ยราคาประเมินสูงสุด ฿/ตร.ว. ต่อภูมิภาค</div>
+        <div id="regmoney"></div>
+        <h2 style="margin-top:22px;">💰 ตารางเปรียบเทียบราคา (Top 10)</h2>
+        <div class="h-sub">ราคาสูงสุดในจังหวัด รอบ 2566–69 · เทียบกับราคาต่ำสุด</div>
+        <table class="ptab" id="ptab"></table>
+      </section>
+    </div>
+  </div>
+
+  <details class="editor">
+    <summary>✍️ ปรับข้อมูลเอง (วางทับชุดข้อมูลปัจจุบัน) <span class="chev">▶</span></summary>
+    <div class="ed-body">
+      <p>วางทีละบรรทัด: <code>จังหวัด,ราคาสูงสุด,ราคาต่ำสุด,%เมือง,%นอกเมือง</code> &nbsp;(เช่น <code>เชียงใหม่,250000,100,12.5,18.2</code>) — ใส่เฉพาะคอลัมน์ที่มีก็ได้</p>
+      <textarea id="csv" placeholder="เชียงใหม่,250000,100,12.5,18.2&#10;ภูเก็ต,200000,3200,9,15"></textarea>
+      <div class="btnrow">
+        <button class="btn pri" id="applyCsv">อัปเดตทั้งหมด</button>
+        <button class="btn" id="loadTpl">โหลดเทมเพลต 77 จังหวัด</button>
+        <button class="btn" id="resetData">รีเซ็ต</button>
+      </div>
+      <div class="ed-msg" id="edMsg"></div>
+    </div>
+  </details>
+
+  <footer>
+    <b style="color:var(--ink-dim)">ระเบียบวิธี:</b> ราคาต่ำสุด–สูงสุดรายจังหวัดใช้ตารางรอบบัญชี <b>2566–2569</b> ที่เผยแพร่โดยสื่ออสังหาฯ/การเงินและอ้างอิงกรมธนารักษ์. ส่วนข้อมูล <b>% เปลี่ยนแปลง</b> ยังมีรายงานครบเฉพาะบางพื้นที่ เช่น กทม. กำแพงเพชร ชลบุรี และชัยนาท จึงยังใช้ค่าประมาณเพื่อให้กราฟเปรียบเทียบทำงานครบ 77 จังหวัด.
+    ตรวจสอบราคาจริงรายแปลงที่ <a href="https://assessprice.treasury.go.th" target="_blank">assessprice.treasury.go.th</a> · ราคาสูงสุด/ต่ำสุดเป็นบาทต่อตารางวา
+  </footer>
+</div>
+<div id="tip"></div>
+
+<script>
+const PROV=[
+ ["แม่ฮ่องสอน","เหนือ",2,2],["เชียงใหม่","เหนือ",2,3],["เชียงราย","เหนือ",1,5],["พะเยา","เหนือ",2,5],
+ ["น่าน","เหนือ",2,7],["ลำพูน","เหนือ",3,3],["ลำปาง","เหนือ",3,4],["แพร่","เหนือ",3,6],
+ ["อุตรดิตถ์","เหนือ",4,6],["ตาก","เหนือ",4,3],["สุโขทัย","เหนือ",4,5],["กำแพงเพชร","เหนือ",5,4],
+ ["พิษณุโลก","เหนือ",5,6],["พิจิตร","เหนือ",6,5],["เพชรบูรณ์","เหนือ",6,7],["นครสวรรค์","เหนือ",7,5],["อุทัยธานี","เหนือ",7,4],
+ ["เลย","อีสาน",5,8],["หนองบัวลำภู","อีสาน",5,9],["อุดรธานี","อีสาน",5,10],["หนองคาย","อีสาน",4,10],
+ ["บึงกาฬ","อีสาน",4,12],["นครพนม","อีสาน",5,12],["สกลนคร","อีสาน",5,11],["มุกดาหาร","อีสาน",6,12],
+ ["กาฬสินธุ์","อีสาน",6,10],["ขอนแก่น","อีสาน",6,8],["ชัยภูมิ","อีสาน",7,7],["มหาสารคาม","อีสาน",7,9],
+ ["ร้อยเอ็ด","อีสาน",7,10],["ยโสธร","อีสาน",7,11],["อำนาจเจริญ","อีสาน",7,12],["อุบลราชธานี","อีสาน",8,12],
+ ["ศรีสะเกษ","อีสาน",8,11],["สุรินทร์","อีสาน",8,10],["บุรีรัมย์","อีสาน",8,9],["นครราชสีมา","อีสาน",8,8],
+ ["ชัยนาท","กลาง",8,5],["ลพบุรี","กลาง",8,7],["สิงห์บุรี","กลาง",9,5],["อ่างทอง","กลาง",9,6],
+ ["สุพรรณบุรี","กลาง",9,4],["สระบุรี","กลาง",9,7],["พระนครศรีอยุธยา","กลาง",10,6],["ปทุมธานี","กลาง",10,7],
+ ["นครปฐม","กลาง",10,4],["นนทบุรี","กลาง",11,6],["กรุงเทพมหานคร","กลาง",11,7],["สมุทรสาคร","กลาง",11,5],
+ ["สมุทรปราการ","กลาง",12,7],["สมุทรสงคราม","กลาง",12,5],
+ ["นครนายก","ตะวันออก",9,8],["ปราจีนบุรี","ตะวันออก",9,9],["สระแก้ว","ตะวันออก",9,10],["ฉะเชิงเทรา","ตะวันออก",10,8],
+ ["ชลบุรี","ตะวันออก",11,8],["ระยอง","ตะวันออก",12,9],["จันทบุรี","ตะวันออก",12,10],["ตราด","ตะวันออก",13,11],
+ ["กาญจนบุรี","ตะวันตก",10,3],["ราชบุรี","ตะวันตก",11,4],["เพชรบุรี","ตะวันตก",12,4],["ประจวบคีรีขันธ์","ตะวันตก",13,4],
+ ["ชุมพร","ใต้",14,5],["ระนอง","ใต้",15,4],["สุราษฎร์ธานี","ใต้",15,6],["พังงา","ใต้",16,4],
+ ["กระบี่","ใต้",16,5],["ภูเก็ต","ใต้",17,3],["นครศรีธรรมราช","ใต้",16,6],["ตรัง","ใต้",17,5],
+ ["พัทลุง","ใต้",17,6],["สตูล","ใต้",18,4],["สงขลา","ใต้",18,6],["ปัตตานี","ใต้",18,7],
+ ["ยะลา","ใต้",19,6],["นราธิวาส","ใต้",19,7]
+];
+const SHORT={"แม่ฮ่องสอน":"มส","เชียงใหม่":"ชม","เชียงราย":"ชร","พะเยา":"พย","น่าน":"นน","ลำพูน":"ลพน","ลำปาง":"ลป","แพร่":"พร","อุตรดิตถ์":"อต","ตาก":"ตก","สุโขทัย":"สท","กำแพงเพชร":"กพ","พิษณุโลก":"พล","พิจิตร":"พจ","เพชรบูรณ์":"พช","นครสวรรค์":"นว","อุทัยธานี":"อน","เลย":"ลย","หนองบัวลำภู":"นภ","อุดรธานี":"อด","หนองคาย":"นค","บึงกาฬ":"บก","นครพนม":"นพ","สกลนคร":"สน","มุกดาหาร":"มห","กาฬสินธุ์":"กส","ขอนแก่น":"ขก","ชัยภูมิ":"ชย","มหาสารคาม":"มค","ร้อยเอ็ด":"รอ","ยโสธร":"ยส","อำนาจเจริญ":"อจ","อุบลราชธานี":"อบ","ศรีสะเกษ":"ศก","สุรินทร์":"สร","บุรีรัมย์":"บร","นครราชสีมา":"นม","ชัยนาท":"ชน","ลพบุรี":"ลบ","สิงห์บุรี":"สห","อ่างทอง":"อท","สุพรรณบุรี":"สพ","สระบุรี":"สบ","พระนครศรีอยุธยา":"อย","ปทุมธานี":"ปท","นครปฐม":"นฐ","นนทบุรี":"นบ","กรุงเทพมหานคร":"กท","สมุทรสาคร":"สค","สมุทรปราการ":"สป","สมุทรสงคราม":"สส","นครนายก":"นย","ปราจีนบุรี":"ปจ","สระแก้ว":"สแ","ฉะเชิงเทรา":"ฉช","ชลบุรี":"ชบ","ระยอง":"รย","จันทบุรี":"จบ","ตราด":"ตร","กาญจนบุรี":"กจ","ราชบุรี":"รบ","เพชรบุรี":"พบ","ประจวบคีรีขันธ์":"ปข","ชุมพร":"ชพ","ระนอง":"รน","สุราษฎร์ธานี":"สฎ","พังงา":"พง","กระบี่":"กบ","ภูเก็ต":"ภก","นครศรีธรรมราช":"นศ","ตรัง":"ตง","พัทลุง":"พท","สตูล":"สต","สงขลา":"สข","ปัตตานี":"ปน","ยะลา":"ยล","นราธิวาส":"นธ"};
+const PRICE={"แม่ฮ่องสอน":52000,"เชียงใหม่":250000,"เชียงราย":85000,"พะเยา":58000,"น่าน":65000,"ลำพูน":100000,"ลำปาง":100000,"แพร่":42500,"อุตรดิตถ์":60000,"ตาก":62500,"สุโขทัย":64000,"กำแพงเพชร":40000,"พิษณุโลก":100000,"พิจิตร":37500,"เพชรบูรณ์":40000,"นครสวรรค์":107500,"อุทัยธานี":50000,"เลย":55000,"หนองบัวลำภู":35000,"อุดรธานี":180000,"หนองคาย":45000,"บึงกาฬ":17500,"นครพนม":50000,"สกลนคร":75000,"มุกดาหาร":35000,"กาฬสินธุ์":33500,"ขอนแก่น":200000,"ชัยภูมิ":53500,"มหาสารคาม":60000,"ร้อยเอ็ด":80000,"ยโสธร":44000,"อำนาจเจริญ":20000,"อุบลราชธานี":110000,"ศรีสะเกษ":40000,"สุรินทร์":60000,"บุรีรัมย์":50000,"นครราชสีมา":130000,"ชัยนาท":45000,"ลพบุรี":100000,"สิงห์บุรี":75000,"อ่างทอง":60000,"สุพรรณบุรี":70000,"สระบุรี":75000,"พระนครศรีอยุธยา":60000,"ปทุมธานี":100000,"นครปฐม":80000,"นนทบุรี":170000,"กรุงเทพมหานคร":1000000,"สมุทรสาคร":70000,"สมุทรปราการ":160000,"สมุทรสงคราม":53000,"นครนายก":73500,"ปราจีนบุรี":45000,"สระแก้ว":25000,"ฉะเชิงเทรา":50000,"ชลบุรี":220000,"ระยอง":125000,"จันทบุรี":90000,"ตราด":71000,"กาญจนบุรี":60000,"ราชบุรี":100000,"เพชรบุรี":100000,"ประจวบคีรีขันธ์":150000,"ชุมพร":87500,"ระนอง":81000,"สุราษฎร์ธานี":150000,"พังงา":50000,"กระบี่":72500,"ภูเก็ต":200000,"นครศรีธรรมราช":200000,"ตรัง":150000,"พัทลุง":150000,"สตูล":96000,"สงขลา":400000,"ปัตตานี":51000,"ยะลา":170000,"นราธิวาส":85000};
+const LOW={"แม่ฮ่องสอน":150,"เชียงใหม่":100,"เชียงราย":175,"พะเยา":380,"น่าน":150,"ลำพูน":150,"ลำปาง":250,"แพร่":180,"อุตรดิตถ์":90,"ตาก":230,"สุโขทัย":100,"กำแพงเพชร":200,"พิษณุโลก":50,"พิจิตร":75,"เพชรบูรณ์":100,"นครสวรรค์":200,"อุทัยธานี":175,"เลย":150,"หนองบัวลำภู":200,"อุดรธานี":250,"หนองคาย":200,"บึงกาฬ":200,"นครพนม":200,"สกลนคร":230,"มุกดาหาร":210,"กาฬสินธุ์":250,"ขอนแก่น":110,"ชัยภูมิ":75,"มหาสารคาม":250,"ร้อยเอ็ด":100,"ยโสธร":200,"อำนาจเจริญ":230,"อุบลราชธานี":50,"ศรีสะเกษ":130,"สุรินทร์":130,"บุรีรัมย์":150,"นครราชสีมา":100,"ชัยนาท":180,"ลพบุรี":100,"สิงห์บุรี":250,"อ่างทอง":250,"สุพรรณบุรี":130,"สระบุรี":150,"พระนครศรีอยุธยา":300,"ปทุมธานี":1000,"นครปฐม":200,"นนทบุรี":1300,"กรุงเทพมหานคร":1300,"สมุทรสาคร":500,"สมุทรปราการ":1000,"สมุทรสงคราม":300,"นครนายก":400,"ปราจีนบุรี":200,"สระแก้ว":200,"ฉะเชิงเทรา":400,"ชลบุรี":400,"ระยอง":200,"จันทบุรี":130,"ตราด":150,"กาญจนบุรี":150,"ราชบุรี":200,"เพชรบุรี":150,"ประจวบคีรีขันธ์":300,"ชุมพร":130,"ระนอง":150,"สุราษฎร์ธานี":200,"พังงา":250,"กระบี่":250,"ภูเก็ต":3200,"นครศรีธรรมราช":100,"ตรัง":200,"พัทลุง":200,"สตูล":130,"สงขลา":200,"ปัตตานี":180,"ยะลา":130,"นราธิวาส":150};
+const PRICE_REAL=new Set(Object.keys(PRICE));
+const PCT_REAL={"กรุงเทพมหานคร":{m:2.76,n:2.76},"กำแพงเพชร":{m:123,n:123},"ชลบุรี":{m:47.24,n:47.24},"สุราษฎร์ธานี":{m:31.13,n:31.13},"สระแก้ว":{m:29.9,n:29.9},"ชัยนาท":{m:23.84,n:23.84},"ระยอง":{m:12,n:12},"เชียงใหม่":{m:5,n:5},"ภูเก็ต":{m:1,n:1}};
+const BASE={"เหนือ":9,"อีสาน":10,"กลาง":8,"ตะวันออก":14,"ตะวันตก":9,"ใต้":11};
+const URBAN=new Set(["กรุงเทพมหานคร","นนทบุรี","ปทุมธานี","สมุทรปราการ","สมุทรสาคร","ภูเก็ต","เชียงใหม่","สงขลา","นครราชสีมา","ขอนแก่น","นครปฐม","พระนครศรีอยุธยา","ชลบุรี","ระยอง","อุดรธานี","สุราษฎร์ธานี"]);
+function seed(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return((h>>>0)%100000)/100000;}
+function r1(x){return Math.round(x*10)/10;}
+function rNice(x){if(x>=100000)return Math.round(x/5000)*5000;if(x>=10000)return Math.round(x/1000)*1000;return Math.round(x/500)*500;}
+function genDefaults(){const d={};PROV.forEach(([name,reg])=>{let m,n;
+  if(PCT_REAL[name]){m=PCT_REAL[name].m;n=PCT_REAL[name].n;}
+  else{const base=BASE[reg];m=base+(seed(name+"m")-0.5)*11;if(m<0)m=base*0.4;
+    const f=URBAN.has(name)?(0.85+seed(name+"u")*0.35):(1.15+seed(name+"f")*0.75);
+    n=m*f+(seed(name+"n")-0.5)*3;if(n<0)n=0;m=r1(m);n=r1(n);}
+  const p=PRICE[name];
+  const pn=LOW[name];
+  d[name]={m,n,p,pn,real:(PRICE_REAL.has(name)||!!PCT_REAL[name])};});return d;}
+let DATA=genDefaults();
+function cssv(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function colorSeq(v){if(v<0)return cssv("--c-neg");if(v<5)return cssv("--c0");if(v<10)return cssv("--c1");if(v<20)return cssv("--c2");if(v<40)return cssv("--c3");if(v<80)return cssv("--c4");return cssv("--c5");}
+function colorDiff(v){if(v<=-10)return"#2c6e8f";if(v<=-3)return"#5a98ad";if(v<3)return"#67707a";if(v<10)return"#d8a13b";if(v<30)return"#d86a2c";return"#a83226";}
+function colorPrice(v){if(v<20000)return cssv("--p0");if(v<50000)return cssv("--p1");if(v<100000)return cssv("--p2");if(v<200000)return cssv("--p3");if(v<400000)return cssv("--p4");if(v<1000000)return cssv("--p5");return cssv("--p6");}
+const SEQLEG=[["--c-neg","< 0%"],["--c0","0–5%"],["--c1","5–10%"],["--c2","10–20%"],["--c3","20–40%"],["--c4","40–80%"],["--c5","> 80%"]];
+const PRICELEG=[["--p0","< 20k"],["--p1","20–50k"],["--p2","50–100k"],["--p3","100–200k"],["--p4","200–400k"],["--p5","400k–1M"],["--p6","= 1M"]];
+const DIFFLEG=[["#2c6e8f","≤ −10"],["#5a98ad","−10..−3"],["#67707a","±3"],["#d8a13b","+3..+10"],["#d86a2c","+10..+30"],["#a83226","> +30"]];
+let model="price",rankMode="top",onlyReal=false,curView="map";
+function valOf(n){const d=DATA[n];if(model==="price")return d.p;if(model==="mueang")return d.m;if(model==="nok")return d.n;return r1(d.n-d.m);}
+function colorOf(n){const v=valOf(n);return model==="price"?colorPrice(v):model==="diff"?colorDiff(v):colorSeq(v);}
+function fmtFull(v){return Math.round(v).toLocaleString("en-US");}
+const REGS=["เหนือ","อีสาน","กลาง","ตะวันออก","ตะวันตก","ใต้"];
+
+/* ---- KPI ---- */
+function buildKPI(){
+  const ps=PROV.map(p=>p[0]);
+  const avgM=r1(ps.reduce((s,n)=>s+DATA[n].m,0)/ps.length);
+  const avgN=r1(ps.reduce((s,n)=>s+DATA[n].n,0)/ps.length);
+  const avgP=Math.round(ps.reduce((s,n)=>s+DATA[n].p,0)/ps.length);
+  const maxN=Math.max(...ps.map(n=>DATA[n].n));const maxNp=ps[ps.map(n=>DATA[n].n).indexOf(maxN)];
+  document.getElementById("kpis").innerHTML=`
+   <div class="kpi g"><div class="kl">เฉลี่ย %เปลี่ยน · เมือง</div><div class="kv">+${avgM}<small>%</small></div><div class="kd">อ้างอิงประเทศจริง +8.93%</div></div>
+   <div class="kpi green" style="--glow:#6fcf9722"><div class="kl">เฉลี่ย %เปลี่ยน · นอกเมือง</div><div class="kv" style="color:var(--green)">+${avgN}<small>%</small></div><div class="kd">% บางจังหวัดยังเป็นค่าประมาณ</div></div>
+   <div class="kpi v"><div class="kl">ราคาเฉลี่ยสูงสุด</div><div class="kv" style="color:var(--violet);font-size:22px">${fmtFull(avgP)}<small> ฿/ตร.ว.</small></div><div class="kd">สูงสุด กทม. 1,000,000 ฿</div></div>
+   <div class="kpi r"><div class="kl">%เปลี่ยนสูงสุด (นอกเมือง)</div><div class="kv" style="color:var(--rose)">+${maxN}<small>%</small></div><div class="kd">${maxNp}</div></div>`;
+}
+
+/* ---- MAP ---- */
+const map=document.getElementById("map");
+function buildMap(){map.innerHTML="";PROV.forEach(([name,reg,row,col])=>{const t=document.createElement("div");t.className="tile"+(DATA[name].real?" real":"");t.style.gridRow=row;t.style.gridColumn=col;t.dataset.name=name;t.textContent=SHORT[name]||"";map.appendChild(t);});paint();attachTip();}
+function paint(){document.querySelectorAll(".tile").forEach(t=>{const n=t.dataset.name;t.style.background=colorOf(n);t.classList.toggle("dim",onlyReal&&!DATA[n].real);});}
+const tip=document.getElementById("tip");
+function tipHTML(name){const d=DATA[name];const reg=PROV.find(p=>p[0]===name)[1];const mult=(d.p/Math.max(d.pn,1)).toFixed(1);
+ return `<div class="tn">${name}</div><div class="tr">ภาค${reg}</div>
+  <div class="sec">ราคาประเมินล่าสุด (฿/ตร.ว.)</div>
+  <div class="row"><span>🏙️ สูงสุด</span><b style="color:${colorPrice(d.p)}">${fmtFull(d.p)}</b></div>
+  <div class="row"><span>🌾 ต่ำสุด</span><b style="color:var(--green)">${fmtFull(d.pn)}</b></div>
+  <div class="row"><span>ช่วงห่างราคา</span><b style="color:var(--gold)">${mult}×</b></div>
+  <div class="sec">% เปลี่ยนแปลง (59–62→66–69)</div>
+  <div class="row"><span>🏙️ เมือง</span><b style="color:${colorSeq(d.m)}">${d.m>0?"+":""}${d.m}%</b></div>
+  <div class="row"><span>🌾 นอกเมือง</span><b style="color:${colorSeq(d.n)}">${d.n>0?"+":""}${d.n}%</b></div>
+  <span class="tag ${d.real?"real":"est"}">${d.real?"● มีราคาจากตารางอ้างอิง":"% เปลี่ยนแปลงประมาณการ"}</span>`;}
+function attachTip(){document.querySelectorAll(".tile,.dot,.dumbrow").forEach(t=>{const n=t.dataset.name;if(!n)return;["mousemove","mouseenter","click"].forEach(ev=>t.addEventListener(ev,e=>showTip(e,n)));t.addEventListener("mouseleave",()=>tip.classList.remove("show"));});}
+function showTip(e,name){tip.innerHTML=tipHTML(name);tip.classList.add("show");let x=e.clientX+16,y=e.clientY+16;const r=tip.getBoundingClientRect();if(x+r.width>innerWidth-10)x=e.clientX-r.width-16;if(y+r.height>innerHeight-10)y=e.clientY-r.height-16;tip.style.left=x+"px";tip.style.top=y+"px";}
+function buildLegend(){const L=document.getElementById("legend");L.innerHTML="";const items=model==="price"?PRICELEG.map(s=>[cssv(s[0]),s[1]]):model==="diff"?DIFFLEG:SEQLEG.map(s=>[cssv(s[0]),s[1]]);items.forEach(([c,t])=>{const el=document.createElement("div");el.className="lg";el.innerHTML=`<span class="sw" style="background:${c}"></span>${t}`;L.appendChild(el);});}
+function buildStats(){const vals=PROV.map(p=>valOf(p[0]));const avg=vals.reduce((a,b)=>a+b,0)/vals.length;const sorted=[...vals].sort((a,b)=>a-b);const med=sorted[Math.floor(sorted.length/2)];const max=Math.max(...vals),min=Math.min(...vals);const maxP=PROV[vals.indexOf(max)][0],minP=PROV[vals.indexOf(min)][0];
+ let f,fs;if(model==="price"){f=v=>fmtFull(v)+" ฿";fs="17px";}else if(model==="diff"){f=v=>(v>0?"+":"")+r1(v);fs="21px";}else{f=v=>(v>0?"+":"")+r1(v)+"%";fs="21px";}
+ document.getElementById("stats").innerHTML=`
+  <div class="stat"><div class="lab">ค่าเฉลี่ย 77 จังหวัด</div><div class="val" style="font-size:${fs}">${f(avg)}</div></div>
+  <div class="stat"><div class="lab">มัธยฐาน</div><div class="val" style="font-size:${fs}">${f(med)}</div></div>
+  <div class="stat"><div class="lab">สูงสุด</div><div class="val" style="font-size:${model==='price'?'16px':'19px'}">${f(max)} <small>${maxP}</small></div></div>
+  <div class="stat"><div class="lab">ต่ำสุด</div><div class="val" style="font-size:${model==='price'?'16px':'19px'}">${f(min)} <small>${minP}</small></div></div>`;
+ document.getElementById("ovSub").textContent={price:"สรุป: ราคาประเมินสูงสุดรายจังหวัด",mueang:"สรุป: %เปลี่ยนแปลง เขตเมือง",nok:"สรุป: %เปลี่ยนแปลง นอกเมือง",diff:"สรุป: ส่วนต่าง %เปลี่ยน (นอกเมือง − เมือง)"}[model];
+ document.getElementById("benchLab").textContent=model==="price"?"ราคาสูงสุดของประเทศ (กทม.)":"ค่าเฉลี่ย %เปลี่ยนประเทศ (จริง)";
+ document.getElementById("benchVal").textContent=model==="price"?"1,000,000 ฿":"+8.93%";}
+function buildRank(){const arr=PROV.map(p=>[p[0],valOf(p[0])]).sort((a,b)=>b[1]-a[1]);const list=rankMode==="top"?arr.slice(0,10):arr.slice(-10).reverse();const mx=Math.max(...arr.map(a=>Math.abs(a[1])),1);
+ document.getElementById("rkSub").textContent=(rankMode==="top"?"10 สูงสุด":"10 ต่ำสุด")+" · "+{price:"ราคาสูงสุด",mueang:"%เมือง",nok:"%นอกเมือง",diff:"ส่วนต่าง%"}[model];
+ document.getElementById("rank").innerHTML=list.map(([n,v],i)=>{const c=model==="price"?colorPrice(v):model==="diff"?colorDiff(v):colorSeq(v);const w=Math.max(Math.abs(v)/mx*72,4);const val=model==="price"?fmtFull(v)+" ฿":(v>0?"+":"")+r1(v)+(model==="diff"?"":"%");return `<div class="rrow"><span class="ri">${i+1}</span><span class="rn"><span class="bar" style="width:${w}px;background:${c}"></span><span class="nm">${n}${DATA[n].real?' <span style="color:var(--cyan)">●</span>':''}</span></span><span class="rv" style="color:${c}">${val}</span></div>`;}).join("");}
+function setTitles(){const mt=document.getElementById("mapTitle"),ms=document.getElementById("mapSub");
+ if(model==="price"){mt.textContent="แผนที่ราคาประเมินล่าสุด — ราคาสูงสุดรายจังหวัด";ms.textContent="ไล่สีตามราคาสูงสุด บาท/ตร.ว. (รอบ 2566–69)";}
+ else if(model==="mueang"){mt.textContent="แผนที่ %เปลี่ยนแปลง — เขตอำเภอเมือง";ms.textContent="เย็น = เปลี่ยนน้อย → ร้อน = พุ่งแรง";}
+ else if(model==="nok"){mt.textContent="แผนที่ %เปลี่ยนแปลง — นอกเมือง";ms.textContent="% เปลี่ยนแปลงส่วนนี้มีบางจังหวัดเป็นค่าประมาณ";}
+ else{mt.textContent="แผนที่ส่วนต่าง — นอกเมือง เทียบ เมือง";ms.textContent="น้ำเงิน=เมืองโตกว่า · แดง=นอกเมืองพุ่งกว่า";}}
+function renderMap(){setTitles();paint();buildLegend();buildStats();buildRank();}
+
+/* ---- SCATTER ---- */
+function buildScatter(){
+ const W=720,H=440,P={l:58,r:24,t:20,b:54};
+ const xmin=Math.log10(8000),xmax=Math.log10(1100000);
+ const ys=PROV.map(p=>DATA[p[0]].m);const ymax=Math.max(...ys,30),ymin=Math.min(0,...ys);
+ const X=v=>P.l+(Math.log10(Math.max(v,8000))-xmin)/(xmax-xmin)*(W-P.l-P.r);
+ const Y=v=>H-P.b-(v-ymin)/(ymax-ymin)*(H-P.t-P.b);
+ const pn=PROV.map(p=>DATA[p[0]].pn);const pnmax=Math.max(...pn);
+ const R=v=>4+Math.sqrt(v/pnmax)*9;
+ let g="";
+ [10000,50000,100000,500000,1000000].forEach(t=>{g+=`<line class="gridln" x1="${X(t)}" y1="${P.t}" x2="${X(t)}" y2="${H-P.b}"/><text class="axlab" x="${X(t)}" y="${H-P.b+16}" text-anchor="middle">${t>=1000000?'1M':t/1000+'k'}</text>`;});
+ [0,10,20,30].filter(t=>t<=ymax).forEach(t=>{g+=`<line class="gridln" x1="${P.l}" y1="${Y(t)}" x2="${W-P.r}" y2="${Y(t)}"/><text class="axlab" x="${P.l-8}" y="${Y(t)+3}" text-anchor="end">${t}%</text>`;});
+ g+=`<line class="gridln" style="stroke:#5fb6c455;stroke-dasharray:5 4" x1="${P.l}" y1="${Y(8.93)}" x2="${W-P.r}" y2="${Y(8.93)}"/><text class="axlab" style="fill:var(--cyan)" x="${W-P.r}" y="${Y(8.93)-5}" text-anchor="end">เฉลี่ยประเทศ 8.93%</text>`;
+ let dots="";PROV.forEach(([name])=>{const d=DATA[name];const c=d.real?cssv("--cyan"):cssv("--gold");
+  dots+=`<circle class="dot" data-name="${name}" cx="${X(d.p)}" cy="${Y(d.m)}" r="${R(d.pn)}" fill="${c}" fill-opacity="0.6" stroke="${c}" stroke-width="1.5"/>`;});
+ // label a few notable
+ ["กรุงเทพมหานคร","กำแพงเพชร","ชลบุรี","สงขลา","ภูเก็ต"].forEach(name=>{const d=DATA[name];dots+=`<text class="dlabel" x="${X(d.p)+R(d.pn)+3}" y="${Y(d.m)+3}">${name}</text>`;});
+ const svg=`<svg viewBox="0 0 ${W} ${H}">
+  <line class="axis" x1="${P.l}" y1="${H-P.b}" x2="${W-P.r}" y2="${H-P.b}"/>
+  <line class="axis" x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${H-P.b}"/>
+  ${g}${dots}
+  <text class="axtitle" x="${(W)/2}" y="${H-8}" text-anchor="middle">ราคาประเมินสูงสุด (฿/ตร.ว. · log)</text>
+  <text class="axtitle" transform="rotate(-90 16 ${(H)/2})" x="16" y="${(H)/2}" text-anchor="middle">%เปลี่ยนแปลง เขตเมือง</text>
+ </svg>`;
+ document.getElementById("scatter").innerHTML=svg;attachTip();}
+
+/* ---- DUMBBELL ---- */
+function buildDumbbell(){
+ const arr=PROV.map(p=>[p[0],DATA[p[0]].p,DATA[p[0]].pn,DATA[p[0]].real]).sort((a,b)=>b[1]-a[1]).slice(0,15);
+ const W=720,rowH=30,P={l:118,r:60,t:10};const H=P.t+arr.length*rowH+10;
+ const xmin=Math.log10(8000),xmax=Math.log10(1100000);
+ const X=v=>P.l+(Math.log10(Math.max(v,8000))-xmin)/(xmax-xmin)*(W-P.l-P.r);
+ let g="";[10000,100000,1000000].forEach(t=>{g+=`<line class="gridln" x1="${X(t)}" y1="${P.t}" x2="${X(t)}" y2="${H-8}"/><text class="axlab" x="${X(t)}" y="${H-0}" text-anchor="middle">${t>=1000000?'1M':t/1000+'k'}</text>`;});
+ let rows="";arr.forEach(([name,p,pn,real],i)=>{const y=P.t+i*rowH+rowH/2;
+  rows+=`<g class="dumbrow" data-name="${name}">
+    <rect x="0" y="${y-rowH/2}" width="${W}" height="${rowH}" fill="transparent"/>
+    <text class="dumb-name" x="0" y="${y+4}">${name}${real?' <tspan fill="#5fb6c4">●</tspan>':''}</text>
+    <line class="dumb-line" x1="${X(pn)}" y1="${y}" x2="${X(p)}" y2="${y}"/>
+    <circle cx="${X(pn)}" cy="${y}" r="6" fill="var(--green)"/>
+    <circle cx="${X(p)}" cy="${y}" r="6" fill="var(--violet)"/>
+    <text class="dumb-val" x="${X(p)+10}" y="${y+3}">${fmtFull(p)}</text>
+  </g>`;});
+ document.getElementById("dumbbell").innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}${rows}</svg>`;attachTip();}
+
+/* ---- REGION (paired %) + money bars + price table ---- */
+function buildRegionViews(){
+ const rowsPct=REGS.map(rg=>{const ps=PROV.filter(p=>p[1]===rg).map(p=>p[0]);
+  const m=r1(ps.reduce((s,n)=>s+DATA[n].m,0)/ps.length);const n=r1(ps.reduce((s,n2)=>s+DATA[n2].n,0)/ps.length);return[rg,m,n];});
+ const mxp=Math.max(...rowsPct.flatMap(r=>[r[1],r[2]]),1);
+ document.getElementById("regpct").innerHTML=rowsPct.map(([rg,m,n])=>`
+  <div class="rg"><div class="rgh"><span>ภาค${rg}</span><b style="color:var(--ink-dim)">เมือง <span style="color:var(--violet)">+${m}%</span> · นอกเมือง <span style="color:var(--green)">+${n}%</span></b></div>
+   <div class="twin">
+    <div class="trk"><div class="fl" style="width:${m/mxp*100}%;background:var(--violet)"></div></div>
+    <div class="trk"><div class="fl" style="width:${n/mxp*100}%;background:var(--green)"></div></div>
+   </div></div>`).join("");
+ // money bars (svg)
+ const rowsMoney=REGS.map(rg=>{const ps=PROV.filter(p=>p[1]===rg).map(p=>p[0]);return[rg,Math.round(ps.reduce((s,n)=>s+DATA[n].p,0)/ps.length)];}).sort((a,b)=>b[1]-a[1]);
+ const W=400,rowH=34,P={l:74,r:64,t:6};const H=P.t+rowsMoney.length*rowH+4;const mx=Math.max(...rowsMoney.map(r=>r[1]));
+ let bars="";rowsMoney.forEach(([rg,v],i)=>{const y=P.t+i*rowH;const w=(v/mx)*(W-P.l-P.r);
+  bars+=`<text class="dumb-name" x="0" y="${y+rowH/2+4}" font-size="12">ภาค${rg}</text>
+   <rect x="${P.l}" y="${y+6}" width="${w}" height="${rowH-14}" rx="4" fill="${colorPrice(v)}"/>
+   <text class="dumb-val" x="${P.l+w+8}" y="${y+rowH/2+4}">${fmtFull(v)}</text>`;});
+ document.getElementById("regmoney").innerHTML=`<svg viewBox="0 0 ${W} ${H}">${bars}</svg>`;
+ // table
+ const tarr=PROV.map(p=>[p[0],DATA[p[0]].p,DATA[p[0]].pn,DATA[p[0]].real]).sort((a,b)=>b[1]-a[1]).slice(0,10);
+ let h=`<tr><th>จังหวัด</th><th>สูงสุด</th><th>ต่ำสุด</th><th>สูง/ต่ำ</th></tr>`;
+ tarr.forEach(([n,p,pn,real])=>{h+=`<tr><td>${n}${real?' <span style="color:var(--cyan)">●</span>':''}</td><td class="pm">${fmtFull(p)}</td><td class="pn">${fmtFull(pn)}</td><td class="gap">${(p/Math.max(pn,1)).toFixed(1)}×</td></tr>`;});
+ document.getElementById("ptab").innerHTML=h;}
+
+function renderViews(){buildScatter();buildDumbbell();buildRegionViews();}
+function renderAll(){buildKPI();renderMap();renderViews();}
+
+/* events */
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest(".tab");if(!b)return;curView=b.dataset.v;
+ document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===b));
+ document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.dataset.view===curView));});
+document.getElementById("modelSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;model=b.dataset.m;document.querySelectorAll("#modelSeg button").forEach(x=>x.classList.toggle("on",x===b));renderMap();});
+document.getElementById("rankSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;rankMode=b.dataset.r;document.querySelectorAll("#rankSeg button").forEach(x=>x.classList.toggle("on",x===b));buildRank();});
+document.getElementById("onlyReal").addEventListener("change",e=>{onlyReal=e.target.checked;paint();});
+const edMsg=document.getElementById("edMsg");
+document.getElementById("applyCsv").addEventListener("click",()=>{const lines=document.getElementById("csv").value.split(/\n/).map(l=>l.trim()).filter(Boolean);let ok=0,bad=[];
+ lines.forEach(l=>{const p=l.split(/[,\t]/).map(s=>s.trim());if(!p[0]||!DATA[p[0]]){bad.push(p[0]||"(ว่าง)");return;}const d={...DATA[p[0]]};let got=false;
+  if(p[1]&&!isNaN(+p[1])){d.p=Math.round(+p[1]);got=true;}if(p[2]&&!isNaN(+p[2])){d.pn=Math.round(+p[2]);got=true;}
+  if(p[3]&&!isNaN(+p[3])){d.m=r1(+p[3]);got=true;}if(p[4]&&!isNaN(+p[4])){d.n=r1(+p[4]);got=true;}
+  if(!got){bad.push(p[0]);return;}d.real=true;DATA[p[0]]=d;ok++;});
+ buildMap();renderAll();edMsg.style.color=ok?"#7fdca0":"#e08a8a";edMsg.textContent=`อัปเดต ${ok} จังหวัด`+(bad.length?` · ข้าม: ${bad.slice(0,6).join(", ")}${bad.length>6?"…":""}`:"");});
+document.getElementById("loadTpl").addEventListener("click",()=>{document.getElementById("csv").value=PROV.map(p=>{const d=DATA[p[0]];return `${p[0]},${d.p},${d.pn},${d.m},${d.n}`;}).join("\n");edMsg.style.color="var(--ink-faint)";edMsg.textContent="โหลดเทมเพลตครบ 77 จังหวัดแล้ว";});
+document.getElementById("resetData").addEventListener("click",()=>{DATA=genDefaults();buildMap();renderAll();document.getElementById("csv").value="";edMsg.style.color="var(--ink-faint)";edMsg.textContent="รีเซ็ตแล้ว";});
+
+buildMap();renderAll();
+</script>
+</body>
+</html>
